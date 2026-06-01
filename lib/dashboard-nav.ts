@@ -69,7 +69,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
         label: "Referral",
         href: "/dashboard/referral",
         icon: Users,
-        soon: true,
       },
       {
         label: "API Docs",
@@ -81,13 +80,11 @@ export const DASHBOARD_NAV: NavGroup[] = [
         label: "Support",
         href: "/dashboard/support",
         icon: LifeBuoy,
-        soon: true,
       },
       {
         label: "Pengaturan",
         href: "/dashboard/settings",
         icon: Settings,
-        soon: true,
       },
     ],
   },
