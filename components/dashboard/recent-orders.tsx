@@ -1,42 +1,31 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import type { OrderStatus, RecentOrder } from "@/lib/mock-dashboard";
-import { formatIDR, formatNumber, cn } from "@/lib/utils";
-
-const STATUS_LABEL: Record<OrderStatus, string> = {
-  pending: "Pending",
-  processing: "Diproses",
-  completed: "Selesai",
-  partial: "Sebagian",
-  error: "Gagal",
-};
-
-const STATUS_STYLE: Record<OrderStatus, string> = {
-  pending: "bg-warning/15 text-warning border-warning/30",
-  processing: "bg-secondary/15 text-secondary border-secondary/30",
-  completed: "bg-success/15 text-success border-success/30",
-  partial: "bg-accent/15 text-accent border-accent/30",
-  error: "bg-danger/15 text-danger border-danger/30",
-};
+import {
+  type OrderStatus,
+  type MockOrder,
+  ORDER_STATUS_LABEL,
+  ORDER_STATUS_STYLE,
+} from "@/lib/mock-orders";
+import { formatIDR, formatNumber, formatRelative, cn } from "@/lib/utils";
 
 export function StatusBadge({ status }: { status: OrderStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
-        STATUS_STYLE[status],
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap",
+        ORDER_STATUS_STYLE[status],
       )}
     >
-      {status === "processing" ? (
+      {status === "processing" || status === "active" || status === "refilling" ? (
         <span className="h-1.5 w-1.5 animate-pulse-glow rounded-full bg-current" />
       ) : null}
-      {STATUS_LABEL[status]}
+      {ORDER_STATUS_LABEL[status]}
     </span>
   );
 }
 
-export function RecentOrders({ orders }: { orders: RecentOrder[] }) {
+export function RecentOrders({ orders }: { orders: MockOrder[] }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface/70">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
@@ -44,10 +33,10 @@ export function RecentOrders({ orders }: { orders: RecentOrder[] }) {
           <h3 className="font-display text-base font-bold tracking-tight">
             Order Terbaru
           </h3>
-          <p className="text-xs text-muted">5 order terakhir kamu</p>
+          <p className="text-xs text-muted">{orders.length} order terakhir kamu</p>
         </div>
         <Link
-          href="/dashboard"
+          href="/dashboard/orders"
           className="inline-flex items-center gap-1 text-sm font-semibold text-secondary hover:underline"
         >
           Lihat semua <ArrowRight className="h-3.5 w-3.5" />
@@ -74,15 +63,20 @@ export function RecentOrders({ orders }: { orders: RecentOrder[] }) {
                 key={order.id}
                 className="border-b border-border/50 transition-colors last:border-b-0 hover:bg-background/30"
               >
-                <td className="px-5 py-3.5 font-mono text-xs text-muted">
-                  {order.id}
+                <td className="px-5 py-3.5">
+                  <Link
+                    href={`/dashboard/orders/${order.id}`}
+                    className="font-mono text-xs text-muted hover:text-secondary"
+                  >
+                    {order.id}
+                  </Link>
                 </td>
                 <td className="px-3 py-3.5">
-                  <p className="font-medium">{order.service}</p>
+                  <p className="font-medium">{order.serviceName}</p>
                   <p className="text-xs text-muted">{order.platform}</p>
                 </td>
                 <td className="max-w-[200px] truncate px-3 py-3.5 text-muted">
-                  {order.target}
+                  {order.targetUrl}
                 </td>
                 <td className="px-3 py-3.5 text-right tabular-nums">
                   {formatNumber(order.quantity)}
@@ -94,7 +88,7 @@ export function RecentOrders({ orders }: { orders: RecentOrder[] }) {
                   <StatusBadge status={order.status} />
                 </td>
                 <td className="px-5 py-3.5 text-right text-xs text-muted">
-                  {order.createdAgo}
+                  {formatRelative(order.createdAt)}
                 </td>
               </tr>
             ))}
@@ -105,24 +99,35 @@ export function RecentOrders({ orders }: { orders: RecentOrder[] }) {
       {/* Mobile / tablet stacked list */}
       <ul className="divide-y divide-border lg:hidden">
         {orders.map((order) => (
-          <li key={order.id} className="flex flex-col gap-2 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{order.service}</p>
-                <p className="truncate text-xs text-muted">{order.target}</p>
+          <li key={order.id}>
+            <Link
+              href={`/dashboard/orders/${order.id}`}
+              className="flex flex-col gap-2 p-5 transition-colors hover:bg-background/40"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    {order.serviceName}
+                  </p>
+                  <p className="truncate text-xs text-muted">
+                    {order.targetUrl}
+                  </p>
+                </div>
+                <StatusBadge status={order.status} />
               </div>
-              <StatusBadge status={order.status} />
-            </div>
-            <div className="flex items-center justify-between text-xs text-muted">
-              <span className="font-mono">{order.id}</span>
-              <span>
-                {formatNumber(order.quantity)} •{" "}
-                <span className="font-semibold text-foreground">
-                  {formatIDR(order.price)}
+              <div className="flex items-center justify-between text-xs text-muted">
+                <span className="font-mono">{order.id}</span>
+                <span>
+                  {formatNumber(order.quantity)} •{" "}
+                  <span className="font-semibold text-foreground">
+                    {formatIDR(order.price)}
+                  </span>
                 </span>
-              </span>
-            </div>
-            <p className="text-[11px] text-muted">{order.createdAgo}</p>
+              </div>
+              <p className="text-[11px] text-muted">
+                {formatRelative(order.createdAt)}
+              </p>
+            </Link>
           </li>
         ))}
       </ul>
