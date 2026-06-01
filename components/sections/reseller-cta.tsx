@@ -29,7 +29,7 @@ export function ResellerCta() {
                 pebisnis digital.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
-                <Button href="#" variant="primary" size="lg">
+                <Button href="/register" variant="primary" size="lg">
                   Daftar Jadi Reseller
                   <ArrowRight className="h-4 w-4" />
                 </Button>
