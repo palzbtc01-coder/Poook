@@ -9,10 +9,117 @@ export const MOCK_USER = {
   id: "u_demo",
   name: "Budi Santoso",
   email: "budi@email.com",
+  emailVerified: true,
+  phone: "+62 812-3456-7890",
   initials: "BS",
   balance: 1_250_000,
   tier: "Silver" as const,
+  referralCode: "BUDI123",
+  joinedAt: "2026-02-14T08:00:00Z",
+  twoFactorEnabled: false,
 };
+
+export type NotificationChannel = "email" | "whatsapp" | "push";
+export type NotificationEventKey =
+  | "order_completed"
+  | "order_failed"
+  | "deposit_success"
+  | "promo"
+  | "system_announcement";
+
+export interface NotificationPreference {
+  key: NotificationEventKey;
+  label: string;
+  description: string;
+  channels: Record<NotificationChannel, boolean>;
+}
+
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPreference[] = [
+  {
+    key: "order_completed",
+    label: "Order Selesai",
+    description: "Notifikasi saat order kamu selesai diproses",
+    channels: { email: true, whatsapp: true, push: true },
+  },
+  {
+    key: "order_failed",
+    label: "Order Gagal / Refund",
+    description: "Notifikasi saat order gagal & saldo dikembalikan",
+    channels: { email: true, whatsapp: true, push: true },
+  },
+  {
+    key: "deposit_success",
+    label: "Deposit Sukses",
+    description: "Konfirmasi saat saldo masuk ke akun",
+    channels: { email: true, whatsapp: true, push: true },
+  },
+  {
+    key: "promo",
+    label: "Promo & Penawaran",
+    description: "Diskon, voucher, dan penawaran eksklusif",
+    channels: { email: true, whatsapp: false, push: false },
+  },
+  {
+    key: "system_announcement",
+    label: "Pengumuman Sistem",
+    description: "Maintenance, update, dan info penting",
+    channels: { email: true, whatsapp: false, push: true },
+  },
+];
+
+export interface LoginSession {
+  id: string;
+  device: string;
+  browser: string;
+  location: string;
+  ip: string;
+  lastActiveAt: string;
+  current: boolean;
+}
+
+const NOW_MS = new Date("2026-06-01T10:30:00Z").getTime();
+const minAgo = (m: number) => new Date(NOW_MS - m * 60_000).toISOString();
+const hrAgo = (h: number) => minAgo(h * 60);
+const dayAgo = (d: number) => hrAgo(d * 24);
+
+export const MOCK_LOGIN_SESSIONS: LoginSession[] = [
+  {
+    id: "ses_001",
+    device: "MacBook Pro",
+    browser: "Chrome 124",
+    location: "Jakarta, Indonesia",
+    ip: "180.252.144.10",
+    lastActiveAt: minAgo(2),
+    current: true,
+  },
+  {
+    id: "ses_002",
+    device: "iPhone 14",
+    browser: "Safari Mobile",
+    location: "Jakarta, Indonesia",
+    ip: "114.122.78.5",
+    lastActiveAt: hrAgo(4),
+    current: false,
+  },
+  {
+    id: "ses_003",
+    device: "Samsung Galaxy S23",
+    browser: "Chrome Mobile 124",
+    location: "Bandung, Indonesia",
+    ip: "36.84.92.18",
+    lastActiveAt: dayAgo(2),
+    current: false,
+  },
+  {
+    id: "ses_004",
+    device: "Windows PC",
+    browser: "Firefox 125",
+    location: "Surabaya, Indonesia",
+    ip: "112.215.36.4",
+    lastActiveAt: dayAgo(5),
+    current: false,
+  },
+];
 
 export interface SummaryStat {
   label: string;
