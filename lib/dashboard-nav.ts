@@ -54,13 +54,11 @@ export const DASHBOARD_NAV: NavGroup[] = [
         label: "Isi Saldo",
         href: "/dashboard/deposit",
         icon: Wallet,
-        soon: true,
       },
       {
         label: "Transaksi",
         href: "/dashboard/transactions",
         icon: Receipt,
-        soon: true,
       },
     ],
   },
